@@ -171,6 +171,71 @@ app.get('/api/getMenu',function(req, res,next){
     res.json(data)
 })
 
+//   var data =  [{
+//       id: 0,
+//       name: 'cute',
+//       icon: 'ios-wine',
+//       color: 'red',
+//       type: 'food'
+//     }, {
+//       id: 1,
+//       name: 'beautiful',
+//       icon: 'ios-basket',
+//       color: '#5383FF',
+//       type: 'shopping'
+
+//     }, {
+//       id: 2,
+//       name: 'sexy',
+//       icon: 'ios-color-wand',
+//       color: 'pink',
+//       type: 'beauty'
+//     }, {
+//       id: 3,
+//       name: 'elegant',
+//       icon: 'ios-moon',
+//       color: '#5383FF',
+//       type: 'hotel'
+//     }, {
+//       id: 4,
+//       name: 'season',
+//       icon: 'ios-film',
+//       color: 'silver',
+//       type: 'movie'
+//     }, {
+//       id: 5,
+//       name: 'date',
+//       icon: 'ios-car',
+//       color: 'gold',
+//       type: 'car'
+//     }, {
+//       id: 6,
+//       name: 'work',
+//       icon: 'ios-cafe',
+//       color: 'lightgreen',
+//       type: 'job'
+//     }, {
+//       id: 7,
+//       name: 'party',
+//       icon: 'ios-musical-notes',
+//       color: 'lightgreen',
+//       type: 'job'
+//     }, {
+//       id: 8,
+//       name: 'wedding',
+//       icon: 'md-add',
+//       color: 'lightgreen',
+//       type: 'job'
+//     }, {
+//       id: 9,
+//       name: 'All',
+//       icon: 'ios-eye',
+//       color: 'orange',
+//       type: 'all'
+//     }]
+//     res.json(data)
+// })
+
 app.post('/api/findCreator', limiterGet.middleware({
     innerLimit: 10,
     outerLimit: 60,
