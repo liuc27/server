@@ -7,6 +7,7 @@ import http from 'http';
 import config from 'config';
 import api from './routes';
 import swagger from 'swagger-express';
+import mongoose from 'mongoose';
 
 const app = express();
 
@@ -15,22 +16,24 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+const db = mongoose.connection;
+db.on('error', console.error);
+db.once('open', () => {console.log('Connected to mongodb server'); });
+const mongoURI = `mongodb:\/\/${config.mongo.host}:${config.mongo.port}\/${config.mongo.db}`;
+mongoose.connect(mongoURI);
+
 app.use('/v1', api);
 
 app.use(swagger.init(app, {
   apiVersion: '0.1',
   swaggerVersion: '1.0',
-  swaggerURL: '/swagger',
+  swaggerURL: '/docs',
   swaggerJSON: '/api-docs.json',
   swaggerUI: './public/swagger/',
   basePath: 'http://localhost:3000',
-  info: {
-          title: 'swagger-express sample app',
-    description: 'Swagger + Express = {swagger-express}'
-  },
   apis: [
     './routes/users.js',
-    './routes/guiders.js',
+    './routes/guiders.js'
   ],
   middleware: function(req, res){}
 }));
