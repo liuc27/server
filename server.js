@@ -6,9 +6,9 @@ Useragent = require('express-useragent');
 app.use(cors());
 app.use(Useragent.express());
 var bodyParser = require('body-parser')
-var Product = require('./models/product')
-var Creator = require('./models/creator')
-var User = require('./models/user')
+var Product = require('./origin_models/product')
+var Creator = require('./origin_models/creator')
+var User = require('./origin_models/user')
 var jwt = require('jwt-simple')
 var _ = require('lodash')
 var Limiter = require('express-rate-limiter')
