@@ -73,8 +73,31 @@ router.get("/", (req, res) => {
  *         type: String
  **/
 router.get("/:id", (req, res) => {
-  res.status(404)
-    .send();
+  const _id = req.params.id;
+
+  if(!mongoose.Types.ObjectId.isValid(_id)) {
+    return res.status(400)
+      .send({
+        error: "INVALID ID",
+        code: 1
+      });
+  }
+  Review.findById(_id, (err, result) => {
+    if(err) {
+      throw err;
+    }
+
+    if(!result) {
+      return res.status(404)
+        .send({
+          error: "NO RESOURCE",
+          code: 3
+        });
+    }
+ 
+    return res.status(200)
+      .send(result);
+  });
 });
 
 router.post("/", (req, res) => {
