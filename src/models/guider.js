@@ -4,16 +4,18 @@ import bcrypt from 'bcryptjs';
 const Schema = mongoose.Schema;
 
 const Guider = new Schema({
-  name: String,
-  passowrd: String,
-  email: String,
-  age: String,
-  image: String,
+  id: String,
+  password: String,
+  nickname: String,
+  contact: Array,
   country: String,
   language: Array,
+  sex: String,
+  age: String,
+  image: String,
   occupation: String,
   pay: String,
-  grade: String,
+  certificate: String,
   created: { type: Date, default: Date.now }, 
   updated: { type: Date, default: Date.now }
 });

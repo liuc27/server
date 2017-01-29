@@ -6,10 +6,14 @@ const Schema = mongoose.Schema;
 const User = new Schema({
   id: String,
   passowrd: String,
-  name: String,
+  nickname: String,
+  contact: Array,
   country: String,
   language: Array,
-  occupation: String,
+  sex: String,
+  age: String,
+  image: String,
+  credit: String,
   created: { type: Date, default: Date.now }, 
   updated: { type: Date, default: Date.now }
 });

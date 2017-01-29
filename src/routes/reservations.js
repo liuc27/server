@@ -1,17 +1,17 @@
 import express from 'express';
-import User from '../models/user';
+import Reservation from '../models/reservation';
 import mongoose from 'mongoose';
 const router = express.Router();
 
 /**
  * @swagger
- * resourcePath: /v1/users
+ * resourcePath: /v1/reservations
  * descrption: All about API
  */
 
 /**
  * @swagger
- * path: /v1/users
+ * path: /v1/reservations
  * operations:
  *   -  httpMethod: GET
  *      summary: Login with username and password
@@ -33,44 +33,26 @@ const router = express.Router();
  *          dataType: string
  */
 router.get("/", (req, res) => {
-  const id = req.query.id;
-  const nickname = req.query.nickname;
-  const country = req.query.country;
-  const contact = req.query.contact;
-  const language = req.query.language;
-  const sex = req.query.sex;
-  const age = req.query.age;
+  const user_id = req.query.user_id;
+  const guider_id = req.query.guider_id;
+  const credit = req.query.credit;
+  const paid = req.query.paid;
   const sort = req.query.sort;
   const skip = req.query.skip;
   const limit = req.query.limit;
 
   let query = {};
-  if(id) {
-    query.id = id;
+  if(user_id) {
+    query.user_id = user_id;
   }
-  if(nickname) {
-    query.nickname = nickname;
+  if(guider_id) {
+    query.guider_id = guider_id;
   }
-  if(country) {
-    query.country = country;
+  if(credit) {
+    query.credit = credit;
   }
-  if(contact) {
-    query.contact = {
-      "$in": contact
-    };
-  }
-  if(language) {
-    query.language = {
-      "$in": language 
-    };
-  }
-  if(sex) {
-    query.sex = sex;
-  }
-  if(age) {
-    query.age = {
-      "$gt": age[0], "$lt": age[1]
-    };
+  if(paid) {
+    query.paid = paid;
   }
 
   let sortClause = {
@@ -78,7 +60,7 @@ router.get("/", (req, res) => {
   }
 
   let limitClause = 50;
-  User.find(query)
+  Reservation.find(query)
   .sort(sortClause)
   .limit(limitClause)
   .exec((err, result) => {
@@ -90,7 +72,7 @@ router.get("/", (req, res) => {
 /**
  * @swagger
  * models:
- *   User:
+ *   Reservation:
  *     id: User
  *     properties:
  *       username:
@@ -104,30 +86,24 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const id = req.body.id;
-  const password = req.body.password;
-  const nickname = req.body.nickname;
-  const country = req.body.country;
-  const contact = req.body.contact;
-  const language = req.body.language;
-  const sex = req.body.sex;
-  const age = req.body.age;
+  const user_id = req.body.user_id;
+  const guider_id = req.body.guider_id;
+  const time = req.body.time;
+  const credit = req.body.credit;
+  const paid = req.body.paid;
   const currentTime = new Date();
 
-  const user = new User({
-    id: id,
-    password: password,
-    nickname: nickname,
-    country: country,
-    contact: contact,
-    language: language,
-    sex: sex,
-    age: age,
+  const reservation = new Reservation({
+    user_id: user_id,
+    guider_id: guider_id,
+    time: time,
+    credit: credit,
+    paid: paid,
     created: currentTime,
     updated: currentTime
   });
 
-  user.save( err => {
+  reservation.save( err => {
     if(err){
       throw err;
     }
@@ -138,13 +114,11 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
   const _id = req.params.id;
-  const id = req.body.id;
-  const nickname = req.body.nickname;
-  const country = req.body.country;
-  const contact = req.body.contact;
-  const language = req.body.language;
-  const sex = req.body.sex;
-  const age = req.body.age;
+  const user_id = req.body.user_id;
+  const guider_id = req.body.guider_id;
+  const time = req.body.time;
+  const credit = req.body.credit;
+  const paid = req.body.paid;
   const currentTime = new Date();
   
   if(!mongoose.Types.ObjectId.isValid(_id)) {
@@ -154,27 +128,25 @@ router.put("/:id", (req, res) => {
         code: 1
       });
   }
-  User.findById(_id, (err, user) => {
+  Reservation.findById(_id, (err, reservation) => {
     if(err) {
       throw err;
     }
 
-    if(!user) {
+    if(!reservation) {
       return res.status(404)
         .send({
           error: "NO RESOURCE",
           code: 3
         });
     }
-    user.id = id;
-    user.nickname = nickname;
-    user.country = country;
-    user.contact = contact;
-    user.language = language;
-    user.sex = sex;
-    user.age = age;
-    user.updated = currentTime;
-    user.save((err, result) => {
+    reservation.user_id = user_id;
+    reservation.guider_id = guider_id;
+    reservation.time = time;
+    reservation.credit = credit;
+    reservation.paid = paid;
+    reservation.updated = currentTime;
+    reservation.save((err, result) => {
       if(err) {
         throw err;
       }
@@ -194,12 +166,12 @@ router.delete("/:id", (req, res) => {
         code: 1
       });
   }
-  User.findById(_id, (err, user) => {
+  Reservation.findById(_id, (err, reservation) => {
     if(err) {
       throw err;
     }
 
-    if(!user) {
+    if(!reservation) {
       return res.status(404)
         .send({
           error: "NO RESOURCE",
@@ -207,7 +179,7 @@ router.delete("/:id", (req, res) => {
         });
     }
 
-    User.remove({_id: _id}, (err) => {
+    Reservation.remove({_id: _id}, (err) => {
       if(err) {
         throw err;
       }
