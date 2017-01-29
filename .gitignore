@@ -1,0 +1,7 @@
+.DS_Store
+/node_modules
+/logs
+/routes
+/models
+/app.js
+!.gitkeep
