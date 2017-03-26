@@ -243,5 +243,110 @@ router.delete("/:id", (req, res) => {
     .send();
 });
 
+router.post('/api/wechatLogin', (req, res, next) => {
+    console.log(req.body)
+    var https = require('https');
+
+    var returnData;
+    var options1 = {
+        host: 'api.weixin.qq.com',
+        port: 443,
+        path: '/sns/oauth2/access_token?appid=wxf3055e7413a25932&secret=b7da5fcffd98448a2249ee5aecab90e7&code=' + req.body.code + '&grant_type=authorization_code'
+    };
+
+    console.log("start")
+    var req1 = https.get(options1, function(res1) {
+        console.log('STATUS: ' + res1.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(res1.headers));
+
+        // Buffer the body entirely for processing as a whole.
+        var bodyChunks1 = [];
+        res1.on('data', function(chunk) {
+            // You can process streamed parts here...
+            bodyChunks1.push(chunk);
+        }).on('end', function() {
+            var body1 = Buffer.concat(bodyChunks1);
+            console.log('BODY: ' + body1);
+            console.log(body1.toString('utf8'))
+            console.log(JSON.parse(body1.toString('utf8')).refresh_token)
+            // ...and/or process the entire body here.
+            var options2 = {
+                host: 'api.weixin.qq.com',
+                port: 443,
+                path: '/sns/oauth2/refresh_token?appid=wxf3055e7413a25932&grant_type=refresh_token&refresh_token=' + (JSON.parse(body1.toString('utf8'))).refresh_token
+            };
+            var req2 = https.get(options2, function(res2) {
+                console.log('STATUS: ' + res2.statusCode);
+                console.log('HEADERS: ' + JSON.stringify(res2.headers));
+
+                // Buffer the body entirely for processing as a whole.
+                var bodyChunks2 = [];
+                res2.on('data', function(chunk) {
+                    // You can process streamed parts here...
+                    bodyChunks2.push(chunk);
+                }).on('end', function() {
+                    var body2 = Buffer.concat(bodyChunks2);
+
+                    var options3 = {
+                        host: 'api.weixin.qq.com',
+                        port: 443,
+                        path: '/sns/userinfo?access_token=' + (JSON.parse(body2.toString('utf8'))).access_token + '&openid=' + (JSON.parse(body2.toString('utf8'))).openid + '&lang=zh_CN'
+                    };
+                    var req3 = https.get(options3, function(res3) {
+                        console.log('STATUS: ' + res3.statusCode);
+                        console.log('HEADERS: ' + JSON.stringify(res3.headers));
+
+                        // Buffer the body entirely for processing as a whole.
+                        var bodyChunks3 = [];
+                        res3.on('data', function(chunk) {
+                            // You can process streamed parts here...
+                            bodyChunks3.push(chunk);
+                        }).on('end', function() {
+                            var body3 = Buffer.concat(bodyChunks3);
+                            console.log('BODY3: ' + body3);
+                            returnData = JSON.parse(body3.toString('utf8'));
+                            console.log("send back response")
+                            console.log(returnData)
+
+                            var newUser = {};
+                            if (returnData.openid) newUser.id = "wechat" + returnData.openid
+                            if (returnData.nickname) newUser.nickname = returnData.nickname
+                            if (returnData.sex) newUser.sex = returnData.sex
+                            if (returnData.launguage) newUser.launguage = returnData.launguage
+                            if (returnData.city) newUser.city = returnData.city
+                            if (returnData.province) newUser.province = returnData.province
+                            if (returnData.country) newUser.country = returnData.country
+                            if (returnData.headimgurl) newUser.image = returnData.headimgurl
+                            newUser.password = "wechat" + Math.random().toString(36).slice(-8)
+                            console.log(newUser)
+
+                            User.update({
+                                username: newUser.username
+                            }, newUser, {
+                                upsert: true
+                            }, function(err, data2) {
+                                if (err) {
+                                    return next(err)
+                                } else if (data2) {
+                                    console.log("inserted")
+                                    res.json(newUser);
+                                }
+                            })
+
+                        })
+                    }).on('error', function(e) {
+                        console.log('problem with request: ' + e.message);
+                    })
+                })
+            }).on('error', function(e) {
+                console.log('problem with request: ' + e.message);
+            })
+        })
+    }).on('error', function(e) {
+        console.log('problem with request: ' + e.message);
+    });
+
+})
+
 
 module.exports = router;

@@ -9,6 +9,8 @@ const User = new Schema({
   nickname: String,
   contact: Array,
   country: String,
+  province: String,
+  city: String,
   language: Array,
   sex: String,
   age: String,

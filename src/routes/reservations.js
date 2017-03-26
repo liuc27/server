@@ -215,5 +215,143 @@ router.delete("/:id", (req, res) => {
     .send();
 });
 
+router.post('/api/createOffers', (req, res, next) => {
+    ServiceProvider.findOne({
+        serviceProviderName: req.body.serviceProviderName
+    }, function(err, data) {
+        console.log(data)
+        if (err) {
+            return next(err)
+        } else {
+            if (data == null) {
+                res.send("找不到serviceProvider")
+            } else {
+                console.log("pushed 1 serviceProvider")
+                if (req.body.password === data.password) {
+                    console.log("password right")
+                    console.log(req.body)
+
+                    req.body.event.forEach((element, index) => {
+                        var thisOffer
+                        //make sure the creatorName is the sendername
+                        if (element.action === "put") {
+                            console.log("put")
+                            thisOffer = new Offer(element)
+                            thisOffer.creatorName = req.body.serviceProviderName
+                            thisOffer.save().then(function(result) {
+                                res.json({
+                                    data: "OK"
+                                })
+                            }).catch(function(err) {
+                                console.error("something went wrong");
+                            })
+                        }　
+                        else if (element.action === "delete") {
+                            console.log("delete")
+                            console.log(element)
+                            Offer.remove({
+                                _id: element._id
+                            }).then(function(result) {
+                                res.json({
+                                    data: "OK"
+                                })
+                            }).catch(function(err) {
+                                console.error("something went wrong");
+                            })
+                        }
+                    })
+                }
+            }
+        }
+    })
+})
+
+router.get('/api/createOffers', (req, res, next) => {
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+
+    /* category filter exists */
+    if (req.query.serviceProviderName) {
+        ServiceProvider.findOne({
+            serviceProviderName: req.query.serviceProviderName
+        }, function(err, data) {
+            if (err) {
+                return next(err)
+            } else {
+                if (data == null) {
+                    res.send("did not find serviceProvider")
+                } else {
+                    if (req.query.password === data.password) {
+                        console.log("found serviceProvider and return data")
+                        Offer.find({
+                            serviceProviderName: {
+                                $all: [req.query.serviceProviderName]
+                            }
+                        }, function(err, data) {
+                            console.log(data)
+                            res.json(data)
+                        })
+
+                    } else {
+                        Offer.find({
+                            serviceProviderName: {
+                                $all: [req.query.serviceProviderName]
+                            }
+                        }, function(err, data) {
+                            console.log(data)
+                            res.json(data)
+                        })
+                    }
+                }
+            }
+        })
+    }
+})
+
+
+router.post('/api/acceptOffers', (req, res, next) => {
+    User.findOne({
+        username: req.body.username
+    }, function(err, data) {
+        console.log(data)
+        if (err) {
+            return next(err)
+        } else {
+            if (data == null) {
+                res.send("cant find username")
+            } else {
+                console.log("pushed 1 username")
+                if (req.body.password === data.password) {
+                    console.log("password right")
+                    console.log(req.body)
+
+                    req.body.event.forEach((element, index) => {
+                        //make sure the creatorName is the sendername
+                        if (element.action === "put") {
+                            console.log("put")
+
+                            Offer.update({
+                                _id: req.body.event._id
+                            }, {
+                                $push: {
+                                    username: req.body.username
+                                }
+                            })
+                        } else if (element.action === "delete") {
+                            console.log("delete")
+                            Offer.update({
+                                _id: req.body.event._id
+                            }, {
+                                $pull: {
+                                    username: req.body.username
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        }
+    })
+})
 
 module.exports = router;
